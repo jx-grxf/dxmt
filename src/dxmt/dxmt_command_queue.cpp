@@ -18,6 +18,7 @@
  */
 
 #include "dxmt_command_queue.hpp"
+#include "config/config.hpp"
 #include "Metal.hpp"
 #include "dxmt_statistics.hpp"
 #include "util_env.hpp"
@@ -55,6 +56,11 @@ CommandQueue::CommandQueue(WMT::Device device) :
     argument_encoding_ctx(*this, device, cmd_library),
     initializer(device),
     counter_pool(device) {
+  int forced = Config::getInstance().getOption<int>("dxgi.maxFrameLatency", 0);
+  if (forced > 0) {
+    forced_max_latency_ = std::min(forced, 16);
+    max_latency_ = forced_max_latency_;
+  }
   for (unsigned i = 0; i < kCommandChunkCount; i++) {
     auto &chunk = chunks[i];
     chunk.queue = this;
