@@ -171,6 +171,9 @@ private:
   uint64_t encoder_seq = 1;
   uint64_t frame_count = 0;
   uint32_t max_latency_ = 3;
+  // dxgi.maxFrameLatency: frames the CPU may run ahead of the GPU, overriding
+  // what the application asks for. 0 leaves the choice to the application.
+  uint32_t forced_max_latency_ = 0;
 
   dxmt::thread encodeThread;
   dxmt::thread finishThread;
@@ -274,7 +277,7 @@ public:
 
   uint32_t GetMaxLatency() { return max_latency_; }
 
-  void SetMaxLatency(uint32_t value) { max_latency_ = value; };
+  void SetMaxLatency(uint32_t value) { max_latency_ = forced_max_latency_ ? forced_max_latency_ : value; };
 
   void
   WaitCPUFence(uint64_t seq) {
